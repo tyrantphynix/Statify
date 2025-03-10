@@ -292,6 +292,61 @@ const YouTubeAnalyticsDashboard = () => {
     }
   };
 
+  // Creating chart data
+  const viewsChartData = channelData ? {
+    labels: ['6 months ago', '5 months ago', '4 months ago', '3 months ago', '2 months ago', '1 month ago', 'This month'],
+    datasets: [
+      {
+        label: 'Monthly Views',
+        data: channelData.viewsHistory,
+        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+        borderColor: 'rgba(75, 192, 192, 1)',
+        borderWidth: 1,
+      },
+    ],
+  } : null;
+
+  const categoryChartData = channelData?.categoryBreakdown ? {
+    labels: channelData.categoryBreakdown.map(item => item.category),
+    datasets: [
+      {
+        label: 'Content Categories',
+        data: channelData.categoryBreakdown.map(item => item.percentage),
+        backgroundColor: channelData.categoryBreakdown.map(() => 
+          `rgba(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, 0.6)`
+        ),
+        borderWidth: 1,
+      },
+    ],
+  } : null;
+
+  const retentionChartData = channelData ? {
+    labels: ['10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%', '100%'],
+    datasets: [
+      {
+        label: 'Audience Retention',
+        data: channelData?.audienceRetention,
+        fill: true,
+        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        tension: 0.4,
+      },
+    ],
+  } : null;
+
+  const revenueChartData = channelData ? {
+    labels: ['6 months ago', '5 months ago', '4 months ago', '3 months ago', '2 months ago', '1 month ago', 'This month'],
+    datasets: [
+      {
+        label: 'Estimated Revenue ($)',
+        data: channelData.revenueHistory,
+        backgroundColor: 'rgba(153, 102, 255, 0.6)',
+        borderColor: 'rgba(153, 102, 255, 1)',
+        borderWidth: 1,
+      },
+    ],
+  } : null;
+
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Header */}
@@ -400,6 +455,109 @@ const YouTubeAnalyticsDashboard = () => {
                     <p className="text-sm text-gray-500">Est. Annual Revenue</p>
                     <p className="text-xl font-bold">${formatNumber(channelData.estimatedRevenue)}</p>
                   </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Charts Row */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <h3 className="text-xl font-bold mb-4 text-gray-800">Est. Monthly Views Trend</h3>
+                {viewsChartData && <Bar data={viewsChartData} options={{ responsive: true }} />}
+                <p className="text-xs text-gray-500 mt-2">* Based on estimated distribution of total channel views</p>
+              </div>
+
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <h3 className="text-xl font-bold mb-4 text-gray-800">Content Category Distribution</h3>
+                {categoryChartData && <Pie data={categoryChartData} options={{ responsive: true }} />}
+                <p className="text-xs text-gray-500 mt-2">* Based on analysis of video titles</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <h3 className="text-xl font-bold mb-4 text-gray-800">Est. Audience Retention</h3>
+                {retentionChartData && <Line data={retentionChartData} options={{ responsive: true }} />}
+                <p className="text-xs text-gray-500 mt-2">* Based on typical retention patterns for similar channels</p>
+              </div>
+
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <h3 className="text-xl font-bold mb-4 text-gray-800">Est. Revenue Trend</h3>
+                {revenueChartData && <Bar data={revenueChartData} options={{ responsive: true }} />}
+                <p className="text-xs text-gray-500 mt-2">* Based on industry average CPM of $2 per 1000 views</p>
+              </div>
+            </div>
+
+            {/* Top Videos Table */}
+            <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+              <h3 className="text-xl font-bold mb-4 text-gray-800">Top Performing Videos</h3>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Views</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Likes</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duration</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Est. CTR</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Est. Revenue</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {videoData.map((video, index) => (
+                      <tr key={video.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{video.title}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatNumber(video.views)}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatNumber(video.likes)}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{video.duration}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{video.ctr}%</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatNumber(video.revenue)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p className="text-xs text-gray-500 mt-2">* CTR and Revenue are estimates based on industry averages</p>
+            </div>
+
+            {/* Recommendations Section */}
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h3 className="text-xl font-bold mb-4 text-gray-800">AI-Powered Recommendations</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="border border-green-200 rounded-lg p-4 bg-green-50">
+                  <h4 className="font-bold text-green-800 mb-2">Growth Opportunities</h4>
+                  <ul className="space-y-2">
+                    <li className="flex items-start">
+                      <span className="text-green-600 mr-2">•</span>
+                      <span>Videos averaging {Math.round(channelData.avgViewDuration)} minutes have the highest engagement</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-green-600 mr-2">•</span>
+                      <span>{channelData.categoryBreakdown[0]?.category} content performs well - consider making more</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-green-600 mr-2">•</span>
+                      <span>Top videos average {Math.round(videoData.slice(0, 3).reduce((acc, vid) => acc + vid.likes / vid.views * 100, 0) / 3)}% like ratio - aim for this benchmark</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="border border-red-200 rounded-lg p-4 bg-red-50">
+                  <h4 className="font-bold text-red-800 mb-2">Attention Needed</h4>
+                  <ul className="space-y-2">
+                    <li className="flex items-start">
+                      <span className="text-red-600 mr-2">•</span>
+                      <span>Est. audience retention drops after {(channelData.audienceRetention.findIndex(r => r < 70) + 1) * 10}% of video duration</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-red-600 mr-2">•</span>
+                      <span>{channelData.categoryBreakdown[channelData.categoryBreakdown.length - 1]?.category} videos have lower performance - review strategy</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-red-600 mr-2">•</span>
+                      <span>Est. revenue per view is ${(channelData.estimatedRevenue / channelData.totalViews * 1000).toFixed(2)} per 1000 views - industry average is $2.00</span>
+                    </li>
+                  </ul>
                 </div>
               </div>
             </div>
